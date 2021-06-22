@@ -8,6 +8,11 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+        ssh:
+          description: 'SSH connection to Actions'
+          required: false
+          default: 'false'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -40,7 +45,15 @@ jobs:
           df -hT $PWD
           git clone https://github.com/ONLYOFFICE/build_tools.git -b master build_tools
           ln -sf /workdir/build_tools $GITHUB_WORKSPACE/build_tools
+      
+      - name: SSH connection to Actions
+        uses: P3TERX/ssh2actions@v1.0.0
+        if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
+        env:
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
+      
       - name: Compile
         id: compile
         run: |
