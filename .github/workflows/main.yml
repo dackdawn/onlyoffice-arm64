@@ -60,7 +60,7 @@ jobs:
           cd $GITHUB_WORKSPACE/onlyoffice/build_tools/tools/linux
           echo -e "$(nproc) thread compile"
           sudo rm -f /usr/local/bin/grunt
-          ./automate.py server
+          ./automate.py server || ./automate.py server || ./automate.py server
           echo "build success"
         
       - name: Upload a Build Artifact
