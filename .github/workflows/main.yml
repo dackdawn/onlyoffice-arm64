@@ -43,8 +43,10 @@ jobs:
         working-directory: /workdir
         run: |
           df -hT $PWD
-          git clone https://github.com/ONLYOFFICE/build_tools.git -b master build_tools
-          ln -sf /workdir/build_tools $GITHUB_WORKSPACE/build_tools
+          cd $GITHUB_WORKSPACE/
+          mkdir onlyoffice
+          cd onlyoffice
+          git clone https://github.com/ONLYOFFICE/build_tools.git -b master
       
       - name: SSH connection to Actions
         uses: P3TERX/ssh2actions@v1.0.0
@@ -54,10 +56,10 @@ jobs:
       - name: Compile
         id: compile
         run: |
-          cd build_tools/tools/linux
+          cd $GITHUB_WORKSPACE/build_tools/tools/linux
           echo -e "$(nproc) thread compile"
-          sudo rm /usr/local/bin/grunt
-          ./automate.py
+          sudo rm -f /usr/local/bin/grunt
+          ./automate.py server
           echo "build success"
         
       - name: Upload a Build Artifact
