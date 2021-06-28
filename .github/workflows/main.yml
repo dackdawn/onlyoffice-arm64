@@ -57,7 +57,7 @@ jobs:
       - name: Compile
         id: compile
         run: |
-          cd $GITHUB_WORKSPACE/build_tools/tools/linux
+          cd $GITHUB_WORKSPACE/onlyoffice/build_tools/tools/linux
           echo -e "$(nproc) thread compile"
           sudo rm -f /usr/local/bin/grunt
           ./automate.py server
