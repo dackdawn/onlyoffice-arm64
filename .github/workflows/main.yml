@@ -57,10 +57,11 @@ jobs:
       - name: Compile
         id: compile
         run: |
-          cd $GITHUB_WORKSPACE/onlyoffice/build_tools/tools/linux
+          cd $GITHUB_WORKSPACE/onlyoffice/build_tools/
           echo -e "$(nproc) thread compile"
-          sudo rm -f /usr/local/bin/grunt
-          ./automate.py server || ./automate.py server || ./automate.py server
+          mkdir out
+          docker build --tag onlyoffice-document-editors-builder .
+          docker run -v $PWD/out:/build_tools/out onlyoffice-document-editors-builder
           echo "build success"
         
       - name: Upload a Build Artifact
