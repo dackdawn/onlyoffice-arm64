@@ -59,6 +59,7 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/onlyoffice/build_tools/
           echo -e "$(nproc) thread compile"
+          sed 's:python3 ./automate.py:python3 ./automate.py server:g' Dockerfile
           sed -i 's:"--update", "1",:"--update", "1", "--platform", "android_arm64_v8a",:g' tools/linux/automate.py
           mkdir out
           docker build --tag onlyoffice-document-editors-builder .
