@@ -1,0 +1,76 @@
+# This is a basic workflow to help you get started with Actions
+
+name: build-arm64
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+        ssh:
+          description: 'SSH connection to Actions'
+          required: false
+          default: 'false'
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-18.04
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      
+      - name: Initialization environment
+        run: |
+          sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          sudo -E apt-get -qq update
+          sudo -E apt-get -qq autoremove --purge
+          sudo -E apt-get -qq clean
+          sudo -E apt-get -qq update
+          sudo -E apt-get -qq install python git
+          sudo -E apt-get -qq autoremove --purge
+          sudo -E apt-get -qq clean
+          sudo npm uninstall -g grunt pkg
+          sudo mkdir -p /workdir
+          sudo chown $USER:$GROUPS /workdir
+      
+      - name: Clone source code
+        working-directory: /workdir
+        run: |
+          df -hT $PWD
+          cd $GITHUB_WORKSPACE/
+          mkdir onlyoffice
+          cd onlyoffice
+          git clone https://github.com/ONLYOFFICE/build_tools.git -b master
+      
+      - name: SSH connection to Actions
+        uses: P3TERX/ssh2actions@v1.0.0
+        if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
+
+      
+      - name: Compile
+        id: compile
+        run: |
+          cd $GITHUB_WORKSPACE/onlyoffice/build_tools/
+          echo -e "$(nproc) thread compile"
+          sed -i 's:"--update", "1",:"--update", "1", "--platform", "android_arm64_v8a",:g' tools/linux/automate.py
+          mkdir out
+          docker build --tag onlyoffice-document-editors-builder .
+          docker run -v $PWD/out:/build_tools/out onlyoffice-document-editors-builder
+          echo "build success"
+          cd $GITHUB_WORKSPACE
+        
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v2.2.4
+        with:
+          # Artifact name
+          name: result.zip
+          # A file, directory or wildcard pattern that describes what to upload
+          path: onlyoffice/build_tools/out
+          # The desired behavior if no files are found using the provided path.
