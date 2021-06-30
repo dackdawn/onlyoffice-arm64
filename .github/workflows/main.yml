@@ -58,6 +58,7 @@ jobs:
         id: compile
         run: |
           cd $GITHUB_WORKSPACE/onlyoffice/build_tools/
+          sed -i 's:python3 ./automate.py:python3 ./automate.py server:g' Dockerfile
           echo -e "$(nproc) thread compile"
           mkdir out
           docker build --tag onlyoffice-document-editors-builder .
