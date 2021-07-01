@@ -54,8 +54,8 @@ jobs:
         if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
 
       - name: prepare env
-        working-directory: $GITHUB_WORKSPACE
         run: |
+          cd $GITHUB_WORKSPACE/
           wget https://dl.google.com/android/repository/android-ndk-r21e-linux-x86_64.zip --no-check-certificate
           unzip android-ndk-r21e-linux-x86_64.zip
           export NDK_HOME=$GITHUB_WORKSPACE/android-ndk-r21e
